@@ -1,0 +1,6 @@
+redis:
+  host: your_host_name_here
+  db: your_database_number_here
+  user: your_user_name_here
+  password: your_password_here
+  port: your_port_here
