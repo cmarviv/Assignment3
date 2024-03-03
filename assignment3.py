@@ -79,7 +79,7 @@ class RedisAccessor:
 
     def retrieveArticle(self, key):
         """
-        Function: retrievearticle()
+        Function: retrieveArticle()
         Description: This function uses Redis' connection to retrieve an article using a given key.
         Arguments: self - the class object
                    key - the key for the requested article
@@ -98,7 +98,7 @@ class RedisAccessor:
         """
         article_list = []
         for key in self.__redis_connection.scan_iter("article:*"):
-            article = self.retrievearticle(key)
+            article = self.retrieveArticle(key)
             for item in article["source"]:
                 source_name = item["name"]
             formatted_row = {
