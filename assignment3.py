@@ -62,10 +62,10 @@ class RedisAccessor:
 
         self.__redis_connection.flushall()
 
-    def storeArticles(self, key, articles):
+    def setArticles(self, key, articles):
         """
-        Function Abstract: storeArticles()
-        Description: This function uses Redis' connection to store data in a Python dictionary
+        Function Abstract: setArticles()
+        Description: This function uses Redis' connection to set data in a Python dictionary
                      of articles.
         Arguments: self - the class object
                    key - the index for the articles
@@ -80,10 +80,10 @@ class RedisAccessor:
             updated_key = updated_key + 1
         return updated_key
 
-    def retrieveArticle(self, key):
+    def getArticle(self, key):
         """
-        Function: retrieveArticle()
-        Description: This function uses Redis' connection to retrieve an article using a given key.
+        Function: getArticle()
+        Description: This function uses Redis' connection to get an article using a given key.
         Arguments: self - the class object
                    key - the key for the requested article
         Returns: article - the article obtained from Redis for the given key
@@ -92,31 +92,31 @@ class RedisAccessor:
         article_data = json.loads(article)
         return article_data
 
-    def populateDataFrame(self):
+    def createDataFrame(self):
         """
-        Function: populateDataFrame()
+        Function: createDataFrame()
         Description: This function returns data obtained from Redis as a dataframe.
         Arguments: self - the class object
-        Returns: populated_dataframe - a dataframe containing all the data stored on Redis.
+        Returns: new_dataframe - a dataframe containing all the data stored on Redis.
         """
         article_list = []
         for key in self.__redis_connection.scan_iter("article:*"):
-            article = self.retrieveArticle(key)
+            article = self.getArticle(key)
             for item in article:
               pubdate = article['publishedAt'].split("T")
               pubdate = pubdate[0]
             sources = article["source"]
             for item in sources:
                 source_name = sources['name']
-            formatted_row = {
+            new_row = {
                 "Article Title": article["title"],
                 "Source Name": source_name,
                 "Author": article["author"],
                 "Publication Date": pubdate
             }
-            article_list.append(formatted_row)
-        populated_dataframe = pd.DataFrame.from_dict(article_list)
-        return populated_dataframe
+            article_list.append(new_row)
+        new_dataframe = pd.DataFrame.from_dict(article_list)
+        return new_dataframe
 
 class NewsApiAccessor:
     """
@@ -135,7 +135,7 @@ class NewsApiAccessor:
     def getNewsData(self, category_id):
         """
         Function: getNewsData
-        Description: Retrieves data from newsapi
+        Description: Gets data from newsapi
         Arguments: self - the class object
                    category_id - the category of news to get the articles from (ie sports, business, entertainment, etc)
         Returns: json_request
@@ -163,12 +163,15 @@ def main():
   sports_news = newsDataAccessor.getNewsData('sports')
   enterainment_news = newsDataAccessor.getNewsData('enterainment')
 
-  key_index = 0
-  key_index = redisAccessor.storeArticles(key_index, business_news)
-  key_index = redisAccessor.storeArticles(key_index, sports_news)
-  key_index = redisAccessor.storeArticles(key_index, enterainment_news)
+  for i in range(3):
+    if i == 0:
+        redisAccessor.setArticles(i, business_news)
+    elif i==1:
+        redisAccessor.setArticles(i, sports_news)
+    elif i==2:
+        redisAccessor.setArticles(i, enterainment_news)
 
-  article_df = redisAccessor.populateDataFrame()
+  article_df = redisAccessor.createDataFrame()
   source_frequency_df = article_df[["Source Name", "Publication Date"]].copy()
   author_frequency_df = article_df[["Author", "Publication Date"]].copy()
   author_employment_df = article_df[["Source Name", "Author"]].copy()
