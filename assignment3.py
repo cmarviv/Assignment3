@@ -8,8 +8,6 @@ Original file is located at
 """
 
 import pandas as pd
-import seaborn as sns
-import seaborn.objects as so
 import redis as r
 import json
 import requests
